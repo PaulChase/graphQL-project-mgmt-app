@@ -1,0 +1,76 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime
+    @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"Indicates what fields are available at the top level of a query operation."
+enum TaskStatus {
+    PENDING @enum(value: 1)
+    IN_PROGRESS @enum(value: 2)
+    FINISHED @enum(value: 3)
+}
+
+type Query {
+    users: [User] @all
+
+    clients: [Client!] @all
+
+    client(id: ID! @eq): Client! @find
+
+    projects: [Project!] @all
+
+    project(id: ID! @eq): Project! @find
+
+    tasks: [Task!] @all
+}
+
+type Mutation {
+    createUser(name: String!): User! @create
+
+    createClient(
+        name: String!
+        email: String
+        phone: String
+        about: String
+    ): Client! @create
+
+    createProject(name: String!, desc: String, client_id: Int!): Project!
+        @create
+
+    createTask(title: String!, status: TaskStatus!, project_id: Int!): Task!
+        @create
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    email_verified_at: DateTime
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Client {
+    id: ID!
+    name: String!
+    email: String!
+    phone: String!
+    about: String!
+    projects: [Project!] @hasMany
+}
+
+type Project {
+    id: ID!
+    name: String!
+    desc: String!
+    client_id: Int!
+    tasks: [Task!] @hasMany
+    client: Client! @belongsTo
+}
+
+type Task {
+    id: ID!
+    title: String!
+    project_id: Int!
+    status: TaskStatus!
+    project: Project! @belongsTo
+}
