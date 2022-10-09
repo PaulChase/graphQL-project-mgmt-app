@@ -1,7 +1,8 @@
 import { gql } from "@apollo/client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import client from "../apollo-client";
+import AddClientModal from "../components/AddClientModal";
 import MaxWidth from "../components/MaxWidth";
 
 const stats = [1, 2, 3];
@@ -27,10 +28,63 @@ export async function getServerSideProps() {
 }
 
 export default function dashboard({ clients }) {
+	const [userClients, setUserClients] = useState(clients);
+	const [showAddClientModal, setShowAddClientModal] = useState(false);
+
+	const openAddClientModal = () => setShowAddClientModal(true);
+	const closeAddClientModal = () => setShowAddClientModal(false);
+
+	const addNewClient = (newClient) => {
+		setUserClients([newClient, ...userClients]);
+		closeAddClientModal();
+	};
 	return (
 		<main className=" bg-slate-700 py-8 md:py-12">
 			<section className=" px-4 ">
 				<MaxWidth>
+					{showAddClientModal && <AddClientModal addNewClient={addNewClient} closeModal={closeAddClientModal} />}
+
+					<div className=" mb-10 flex items-center justify-between">
+						<button
+							onClick={() => history.back()}
+							className=" flex items-center space-x-3 px-5 py-3 rounded  font-semibold text-teal-500"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth={1.5}
+								stroke="currentColor"
+								className="w-6 h-6"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+							</svg>
+
+							<span>Back</span>
+						</button>
+
+						<button
+							onClick={openAddClientModal}
+							className=" flex items-center space-x-3 px-5 py-3 rounded  font-semibold text-teal-500 border-4 border-teal-500 hover:bg-teal-500 hover:text-gray-700"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth={1.5}
+								stroke="currentColor"
+								className="w-6 h-6"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+								/>
+							</svg>
+
+							<span>Add New Client</span>
+						</button>
+					</div>
 					<div className=" flex justify-between items-center text-white">
 						<div className=" flex items-center space-x-4">
 							<div className=" bg-teal-300 font-black text-5xl w-24 h-24 rounded-full flex justify-center items-center text-gray-700">
@@ -60,12 +114,12 @@ export default function dashboard({ clients }) {
 						<h2 className=" text-3xl font-bold border-l-8  border-teal-200 pl-4 rounded">Clients</h2>
 
 						<div className=" grid md:grid-cols-3 gap-10 mt-14">
-							{clients.map((client) => (
+							{userClients.map((client) => (
 								<Link key={client.id} href={`/client/${client.id}`}>
 									<div className="  p-4 bg-gray-700 hover:bg-gray-600 shadow rounded-md cursor-pointer">
 										<div className="flex items-start justify-between ">
 											<div className=" flex items-start space-x-4">
-												<div className=" bg-teal-300 font-black text-4xl w-16 h-16 rounded-md flex justify-center items-center text-gray-700">
+												<div className=" bg-teal-300 font-black text-4xl w-16 h-16 rounded-md flex justify-center items-center text-gray-700 uppercase">
 													{client.name[0]}
 												</div>
 												<div className=" space-y-3">
