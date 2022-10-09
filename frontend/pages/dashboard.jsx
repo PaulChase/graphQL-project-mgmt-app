@@ -5,16 +5,23 @@ import client from "../apollo-client";
 import AddClientModal from "../components/AddClientModal";
 import MaxWidth from "../components/MaxWidth";
 
-const stats = [1, 2, 3];
-
 export async function getServerSideProps() {
 	const { data } = await client.query({
 		query: gql`
 			query {
-				clients {
+				user(id: 1) {
 					id
 					name
 					email
+					clientsCount
+					projectsCount
+					clients {
+						id
+						name
+						email
+						projectsCount
+						tasksCount
+					}
 				}
 			}
 		`,
@@ -22,13 +29,13 @@ export async function getServerSideProps() {
 
 	return {
 		props: {
-			clients: data.clients,
+			user: data.user,
 		},
 	};
 }
 
-export default function dashboard({ clients }) {
-	const [userClients, setUserClients] = useState(clients);
+export default function dashboard({ user }) {
+	const [userClients, setUserClients] = useState(user.clients);
 	const [showAddClientModal, setShowAddClientModal] = useState(false);
 
 	const openAddClientModal = () => setShowAddClientModal(true);
@@ -88,21 +95,23 @@ export default function dashboard({ clients }) {
 					<div className=" flex justify-between items-center text-white">
 						<div className=" flex items-center space-x-4">
 							<div className=" bg-teal-300 font-black text-5xl w-24 h-24 rounded-full flex justify-center items-center text-gray-700">
-								A
+								{user.name[0]}
 							</div>
 							<div className=" space-y-3">
-								<h2 className=" text-2xl font-semibold">Paul Chase</h2>
-								<p className=" font-medium">paulchase@gmail.com</p>
+								<h2 className=" text-2xl font-semibold">{user.name}</h2>
+								<p className=" font-medium">{user.email}</p>
 							</div>
 						</div>
 
 						<div className="self-stretch flex space-x-6">
-							{stats.map((stats, index) => (
-								<div key={index} className=" bg-gray-600 px-8 py-6 rounded-md shadow-md h-full space-y-3">
-									<h4 className=" font-semibold text-center">Clients</h4>
-									<h1 className=" font-black text-5xl text-teal-200 text-center">12</h1>
-								</div>
-							))}
+							<div className=" bg-gray-600 px-8 py-6 rounded-md shadow-md h-full space-y-3">
+								<h4 className=" font-semibold text-center">Clients</h4>
+								<h1 className=" font-black text-5xl text-teal-200 text-center">{user.clientsCount}</h1>
+							</div>
+							<div className=" bg-gray-600 px-8 py-6 rounded-md shadow-md h-full space-y-3">
+								<h4 className=" font-semibold text-center">Projects</h4>
+								<h1 className=" font-black text-5xl text-teal-200 text-center">{user.projectsCount}</h1>
+							</div>
 						</div>
 					</div>
 				</MaxWidth>
@@ -142,8 +151,8 @@ export default function dashboard({ clients }) {
 										</div>
 
 										<div className=" ml-20 mt-4 space-x-4">
-											<span className=" font-semibold text-teal-300 text-sm">12 projects</span>
-											<span className=" font-semibold text-teal-300 text-sm">23 tasks</span>
+											<span className=" font-semibold text-teal-300 text-sm">{client.projectsCount} projects</span>
+											<span className=" font-semibold text-teal-300 text-sm">{client.tasksCount} tasks</span>
 										</div>
 									</div>
 								</Link>
